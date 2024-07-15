@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #282c34;
+            font-family: 'Courier New', Courier, monospace;
+            color: #61dafb;
+        }
+
+        .container {
+            text-align: center;
+            background: #20232a;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #61dafb;
+            margin-bottom: 30px;
+        }
+
+        #display {
+            font-size: 56px;
+            margin-bottom: 20px;
+            color: #21a0f6;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #21a0f6;
+            color: #282c34;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            margin: 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #61dafb;
+        }
+
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .laps {
+            margin-top: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+            border-top: 1px solid #444;
+            padding-top: 10px;
+        }
+
+        .lap {
+            font-size: 18px;
+            padding: 5px;
+            border-bottom: 1px solid #444;
+            color: #61dafb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stopwatch</h1>
+        <div id="display">00:00:00</div>
+        <div class="buttons">
+            <button id="startPauseBtn">Start</button>
+            <button id="lapBtn" disabled>Lap</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+        <div class="laps" id="laps"></div>
+    </div>
+    <script>
+        let startTime;
+        let updatedTime;
+        let difference;
+        let savedTime = 0;
+        let tInterval;
+        let running = false;
+
+        const display = document.getElementById('display');
+        const startPauseBtn = document.getElementById('startPauseBtn');
+        const lapBtn = document.getElementById('lapBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const laps = document.getElementById('laps');
+
+        function startPause() {
+            if (!running) {
+                startTime = new Date().getTime() - savedTime;
+                tInterval = setInterval(getShowTime, 1);
+                running = true;
+                startPauseBtn.innerText = 'Pause';
+                lapBtn.disabled = false;
+            } else {
+                clearInterval(tInterval);
+                savedTime = difference;
+                running = false;
+                startPauseBtn.innerText = 'Start';
+                lapBtn.disabled = true;
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(tInterval);
+            running = false;
+            savedTime = 0;
+            display.innerText = '00:00:00';
+            startPauseBtn.innerText = 'Start';
+            laps.innerHTML = '';
+            lapBtn.disabled = true;
+        }
+
+        function getShowTime() {
+            updatedTime = new Date().getTime();
+            difference = updatedTime - startTime;
+
+            let hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            let minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            let seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+            hours = (hours < 10) ? "0" + hours : hours;
+            minutes = (minutes < 10) ? "0" + minutes : minutes;
+            seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+            display.innerText = hours + ':' + minutes + ':' + seconds;
+        }
+
+        function recordLap() {
+            const lapTime = document.createElement('div');
+            lapTime.className = 'lap';
+            lapTime.innerText = display.innerText;
+            laps.appendChild(lapTime);
+        }
+
+        startPauseBtn.addEventListener('click', startPause);
+        resetBtn.addEventListener('click', resetTimer);
+        lapBtn.addEventListener('click', recordLap);
+    </script>
+</body>
+</html>
